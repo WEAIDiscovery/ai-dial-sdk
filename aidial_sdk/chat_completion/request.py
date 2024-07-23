@@ -8,6 +8,8 @@ from aidial_sdk.pydantic_v1 import (
     ConstrainedInt,
     ConstrainedList,
     PositiveInt,
+    StrictBool,
+    StrictInt,
     StrictStr,
 )
 from aidial_sdk.utils.pydantic import ExtraForbidModel
@@ -123,6 +125,10 @@ class ToolChoice(ExtraForbidModel):
     function: FunctionChoice
 
 
+class ResponseFormat(ExtraForbidModel):
+    type: Literal["text", "json_object"]
+
+
 class AzureChatCompletionRequest(ExtraForbidModel):
     model: Optional[StrictStr] = None
     messages: List[Message]
@@ -142,6 +148,10 @@ class AzureChatCompletionRequest(ExtraForbidModel):
     frequency_penalty: Optional[Penalty] = None
     logit_bias: Optional[Mapping[int, float]] = None
     user: Optional[StrictStr] = None
+    seed: Optional[StrictInt] = None
+    logprobs: Optional[StrictBool] = None
+    top_logprobs: Optional[StrictInt] = None
+    response_format: Optional[ResponseFormat] = None
 
 
 class ChatCompletionRequestCustomFields(ExtraForbidModel):
