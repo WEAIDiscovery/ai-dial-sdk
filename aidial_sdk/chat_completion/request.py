@@ -42,7 +42,7 @@ class FunctionCall(ExtraForbidModel):
 
 class ActionCall(ExtraForbidModel):
     action_id: str
-    arguments: str
+    arguments: Optional[str]
 
 
 class ToolCall(ExtraForbidModel):
