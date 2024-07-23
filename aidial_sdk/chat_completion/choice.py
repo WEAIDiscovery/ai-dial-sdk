@@ -1,10 +1,12 @@
 import json
 from asyncio import Queue
 from types import TracebackType
-from typing import Any, Optional, Type, overload
+from typing import Any, Optional, Type, overload, List
 
+from aidial_sdk.chat_completion.actions import Action
 from aidial_sdk.chat_completion.choice_base import ChoiceBase
 from aidial_sdk.chat_completion.chunks import (
+    ActionsChunk,
     AttachmentChunk,
     BaseChunk,
     ContentChunk,
@@ -34,6 +36,7 @@ class Choice(ChoiceBase):
     _opened: bool
     _closed: bool
     _state_submitted: bool
+    _actions_submitted: bool
     _last_finish_reason: Optional[FinishReason]
 
     def __init__(self, queue: Queue, choice_index: int):
@@ -46,6 +49,7 @@ class Choice(ChoiceBase):
         self._opened = False
         self._closed = False
         self._state_submitted = False
+        self._actions_submitted = False
         self._last_finish_reason = None
 
     def __enter__(self):
@@ -160,6 +164,18 @@ class Choice(ChoiceBase):
 
         self._state_submitted = True
         self.send_chunk(StateChunk(self._index, state))
+
+    def set_actions(self, actions: List[Action]) -> None:
+        if self._actions_submitted:
+            raise runtime_error('Trying to set "actions" twice')
+
+        if not self._opened:
+            raise runtime_error("Trying to append actions to an unopened choice")
+        if self._closed:
+            raise runtime_error("Trying to append actions to a closed choice")
+
+        self._actions_submitted = True
+        self.send_chunk(ActionsChunk(self._index, actions))
 
     def create_stage(self, name: Optional[str] = None) -> Stage:
         if not self._opened:

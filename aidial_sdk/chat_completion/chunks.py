@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
+from aidial_sdk.chat_completion.actions import Action
 from aidial_sdk.chat_completion.enums import FinishReason, Status
 from aidial_sdk.pydantic_v1 import BaseModel, root_validator
 from aidial_sdk.utils.json import remove_nones
@@ -397,6 +398,29 @@ class StateChunk(BaseChunk):
                     "index": self.choice_index,
                     "finish_reason": None,
                     "delta": {"custom_content": {"state": self.state}},
+                }
+            ],
+            "usage": None,
+        }
+
+
+class ActionsChunk(BaseChunk):
+    choice_index: int
+    actions: List[Action]
+
+    def __init__(self, choice_index: int, actions: List[Action]):
+        self.actions = actions
+        self.choice_index = choice_index
+
+    def to_dict(self):
+        serialized_actions = [action.dict() for action in self.actions]
+
+        return {
+            "choices": [
+                {
+                    "index": self.choice_index,
+                    "finish_reason": None,
+                    "delta": {"actions": serialized_actions},
                 }
             ],
             "usage": None,

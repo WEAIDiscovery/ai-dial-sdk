@@ -40,6 +40,11 @@ class FunctionCall(ExtraForbidModel):
     arguments: str
 
 
+class ActionCall(ExtraForbidModel):
+    action_id: str
+    arguments: str
+
+
 class ToolCall(ExtraForbidModel):
     # OpenAI API doesn't strictly specify existence of the index field
     index: Optional[int]
@@ -54,6 +59,7 @@ class Role(str, Enum):
     ASSISTANT = "assistant"
     FUNCTION = "function"
     TOOL = "tool"
+    ACTION = "action"
 
 
 class Message(ExtraForbidModel):
@@ -64,6 +70,7 @@ class Message(ExtraForbidModel):
     tool_calls: Optional[List[ToolCall]] = None
     tool_call_id: Optional[StrictStr] = None
     function_call: Optional[FunctionCall] = None
+    action_call: Optional[ActionCall] = None
 
 
 class Addon(ExtraForbidModel):
